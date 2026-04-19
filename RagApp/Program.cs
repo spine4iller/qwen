@@ -7,16 +7,44 @@ class Program
 {
     static async Task Main(string[] args)
     {
-        Console.WriteLine("=== RAG Приложение на .NET ===\n");
+        Console.WriteLine("=== RAG Приложение на .NET с Ollama ===\n");
         
-        // Инициализация сервисов
-        var embeddingService = new SimpleEmbeddingService();
+        // Парсинг аргументов командной строки
+        string ollamaBaseUrl = "http://localhost:11434";
+        string embeddingModel = "nomic-embed-text";
+        string chatModel = "llama3.2";
+        
+        for (int i = 0; i < args.Length; i++)
+        {
+            switch (args[i])
+            {
+                case "--ollama-url":
+                    if (i + 1 < args.Length) ollamaBaseUrl = args[++i];
+                    break;
+                case "--embedding-model":
+                    if (i + 1 < args.Length) embeddingModel = args[++i];
+                    break;
+                case "--chat-model":
+                    if (i + 1 < args.Length) chatModel = args[++i];
+                    break;
+                case "--help":
+                    PrintHelp();
+                    return;
+            }
+        }
+        
+        Console.WriteLine($"Ollama URL: {ollamaBaseUrl}");
+        Console.WriteLine($"Модель эмбеддингов: {embeddingModel}");
+        Console.WriteLine($"Чат-модель: {chatModel}\n");
+        
+        // Инициализация сервисов с авто-определением доступности Ollama
+        var embeddingService = await OllamaServiceFactory.CreateEmbeddingServiceAsync(ollamaBaseUrl, embeddingModel);
+        var llmService = await OllamaServiceFactory.CreateLlmServiceAsync(ollamaBaseUrl, chatModel);
         var vectorStore = new InMemoryVectorStore();
-        var llmService = new SimpleLlmService();
         var ragService = new RagService(embeddingService, vectorStore, llmService);
         
         // Индексация документов
-        Console.WriteLine("Индексация документов...");
+        Console.WriteLine("\nИндексация документов...");
         
         // Вариант 1: Индексация большого документа с автоматическим разбиением на чанки
         var fullDocument = SampleData.GetSampleDocuments();
@@ -94,5 +122,33 @@ class Program
         }
         
         Console.WriteLine("До свидания!");
+    }
+    
+    static void PrintHelp()
+    {
+        Console.WriteLine("""
+        RAG Приложение с поддержкой Ollama
+        
+        Использование:
+          dotnet run [--ollama-url <URL>] [--embedding-model <MODEL>] [--chat-model <MODEL>]
+        
+        Параметры:
+          --ollama-url       URL Ollama сервера (по умолчанию: http://localhost:11434)
+          --embedding-model  Модель для эмбеддингов (по умолчанию: nomic-embed-text)
+          --chat-model       Модель для генерации ответов (по умолчанию: llama3.2)
+          --help             Показать эту справку
+        
+        Примеры:
+          dotnet run
+          dotnet run --ollama-url http://localhost:11434 --chat-model mistral
+          dotnet run --embedding-model all-minilm --chat-model llama3.2
+        
+        Для работы с Ollama:
+          1. Установите Ollama: https://ollama.ai
+          2. Запустите сервер: ollama serve
+          3. Скачайте модели:
+             ollama pull nomic-embed-text
+             ollama pull llama3.2
+        """);
     }
 }

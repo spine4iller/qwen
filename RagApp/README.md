@@ -1,101 +1,164 @@
-# RAG Приложение на .NET
+# RAG Приложение на .NET с поддержкой Ollama
 
-Это демонстрационное приложение реализует архитектуру **RAG (Retrieval-Augmented Generation)** на платформе .NET 8.
+Приложение демонстрирует работу RAG (Retrieval-Augmented Generation) системы с возможностью использования локальной LLM через Ollama.
 
-## Архитектура
-
-Приложение состоит из следующих компонентов:
-
-### 1. **Модели** (`Models/`)
-- `DocumentChunk` - представляет фрагмент документа с эмбеддингом
-- `QueryResult` - результат поиска с ответом и релевантными чанками
-
-### 2. **Сервисы** (`Services/`)
-- `IEmbeddingService` / `SimpleEmbeddingService` - генерация векторных представлений текста
-- `IVectorStore` / `InMemoryVectorStore` - хранение и поиск по векторам
-- `ILlmService` / `SimpleLlmService` - генерация ответов через LLM
-- `RagService` - основной сервис, объединяющий все компоненты
-
-### 3. **Данные** (`Data/`)
-- `SampleData` - пример документов для индексации
-
-## Как это работает
-
-1. **Индексация**: Документы разбиваются на чанки, для каждого генерируется эмбеддинг
-2. **Поиск**: Для вопроса генерируется эмбеддинг, находятся похожие чанки (косинусное сходство)
-3. **Генерация**: Найденный контекст передается в LLM для формирования ответа
-
-## Запуск
-
-```bash
-cd RagApp
-dotnet restore
-dotnet run
-```
-
-## Интеграция с реальными сервисами
-
-Для production-использования замените заглушки на реальные сервисы:
-
-### Azure OpenAI для эмбеддингов:
-```csharp
-public class AzureEmbeddingService : IEmbeddingService
-{
-    private readonly OpenAIClient _client;
-    
-    public async Task<float[]> GenerateEmbeddingAsync(string text)
-    {
-        var response = await _client.GetEmbeddingsAsync(
-            new EmbeddingsOptions("text-embedding-ada-002", new[] { text }));
-        
-        return response.Value.Data[0].Embedding.ToArray();
-    }
-}
-```
-
-### Azure OpenAI для генерации ответов:
-```csharp
-public class AzureLlmService : ILlmService
-{
-    private readonly ChatClient _chatClient;
-    
-    public async Task<string> GenerateAnswerAsync(string question, string context)
-    {
-        var prompt = $"""
-        Используй следующий контекст для ответа на вопрос.
-        
-        Контекст:
-        {context}
-        
-        Вопрос: {question}
-        
-        Ответ:""";
-        
-        var response = await _chatClient.CompleteAsync(prompt);
-        return response.Choices[0].Message.Content;
-    }
-}
-```
-
-## Структура проекта
+## 📁 Структура проекта
 
 ```
 RagApp/
 ├── Models/
-│   └── DocumentChunk.cs
+│   └── DocumentChunk.cs       # Модели данных
 ├── Services/
-│   └── RagServices.cs
+│   ├── RagServices.cs         # Базовые сервисы RAG
+│   └── OllamaServices.cs      # Интеграция с Ollama
 ├── Data/
-│   └── SampleData.cs
-├── Program.cs
-└── RagApp.csproj
+│   └── SampleData.cs          # Примеры документов
+├── Program.cs                 # Точка входа
+├── RagApp.csproj              # Проект .NET 8
+└── README.md                  # Документация
 ```
 
-## Расширение
+## 🔧 Компоненты
 
-Вы можете добавить:
-- Постоянное хранилище векторов (Qdrant, Pinecone, Weaviate)
-- Более сложную логику разбиения документов
-- Кэширование эмбеддингов
-- API endpoint'ы через ASP.NET Core
-- Web UI для взаимодействия
+### Сервисы эмбеддингов
+- **OllamaEmbeddingService** - генерация векторных представлений через Ollama API
+- **SimpleEmbeddingService** - заглушка для демонстрации (без Ollama)
+
+### Векторное хранилище
+- **InMemoryVectorStore** - хранение и поиск по векторам (косинусное сходство)
+
+### LLM сервисы
+- **OllamaLlmService** - генерация ответов через локальную Ollama модель
+- **SimpleLlmService** - демонстрационный режим (без Ollama)
+
+### Утилиты
+- **OllamaServiceFactory** - авто-определение доступности Ollama и создание сервисов
+- **RagService** - оркестрация всех компонентов RAG
+
+## 🚀 Функции
+
+- ✅ Автоматическое разбиение документов на чанки
+- ✅ Векторный поиск с использованием косинусного сходства
+- ✅ **Интеграция с локальным Ollama** для эмбеддингов и LLM
+- ✅ Авто-fallback на заглушки если Ollama недоступен
+- ✅ Демонстрационные данные о .NET технологиях
+- ✅ Интерактивный режим для вопросов
+- ✅ Поддержка аргументов командной строки
+
+## 📝 Установка и запуск
+
+### Требования
+- .NET 8 SDK
+- (Опционально) Ollama для локальных LLM
+
+### Для работы с Ollama:
+
+1. **Установите Ollama**: https://ollama.ai
+
+2. **Запустите сервер Ollama**:
+   ```bash
+   ollama serve
+   ```
+
+3. **Скачайте модели**:
+   ```bash
+   # Модель для эмбеддингов
+   ollama pull nomic-embed-text
+   
+   # Модель для генерации ответов
+   ollama pull llama3.2
+   ```
+
+4. **Запустите приложение**:
+   ```bash
+   cd RagApp
+   dotnet restore
+   dotnet run
+   ```
+
+### Параметры командной строки
+
+```bash
+dotnet run -- --help
+
+# Примеры:
+dotnet run  # Запуск с настройками по умолчанию
+
+# С кастомными моделями:
+dotnet run -- --ollama-url http://localhost:11434 --chat-model mistral
+
+# С разными моделями для эмбеддингов и чата:
+dotnet run -- --embedding-model all-minilm --chat-model llama3.2
+```
+
+### Параметры:
+- `--ollama-url` - URL Ollama сервера (по умолчанию: http://localhost:11434)
+- `--embedding-model` - Модель для эмбеддингов (по умолчанию: nomic-embed-text)
+- `--chat-model` - Модель для генерации ответов (по умолчанию: llama3.2)
+- `--help` - Показать справку
+
+## 🔌 Рекомендуемые модели Ollama
+
+### Для эмбеддингов:
+- `nomic-embed-text` - быстрая и качественная модель
+- `all-minilm` - легковесная модель
+- `mxbai-embed-large` - большая модель для лучшего качества
+
+### Для чата:
+- `llama3.2` - оптимальный баланс скорости и качества
+- `mistral` - популярная модель общего назначения
+- `phi3` - компактная модель от Microsoft
+- `gemma2` - модель от Google
+
+## 🏗️ Архитектура
+
+```
+┌─────────────────┐
+│   Вопрос пользователя   │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│ Embedding Service│ (Ollama или заглушка)
+│ - nomic-embed    │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│  Vector Store   │ (Поиск похожих чанков)
+│  Cosine Similarity│
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│     Контекст     │ (Релевантные документы)
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│   LLM Service   │ (Ollama или заглушка)
+│ - llama3.2      │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│     Ответ       │
+└─────────────────┘
+```
+
+## 💡 Как это работает
+
+1. **Индексация**: Документы разбиваются на чанки, для каждого генерируется эмбеддинг
+2. **Поиск**: Для вопроса генерируется эмбеддинг, находятся похожие чанки
+3. **Генерация**: LLM получает вопрос + контекст и генерирует ответ
+
+## 🔧 Расширение
+
+Для production-использования можно заменить:
+- `InMemoryVectorStore` → PostgreSQL с pgvector, Redis, Qdrant
+- `OllamaEmbeddingService` → Azure OpenAI, Cohere
+- `OllamaLlmService` → Azure OpenAI, Anthropic
+
+## 📄 Лицензия
+
+MIT

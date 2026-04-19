@@ -1,97 +1,53 @@
-```csharp
-# Build results
+```
+# Build artifacts
 bin/
 obj/
-out/
-
-# User-specific files
-.vs/
-*.user
-*.userosscache
-*.suo
-*.userprefs
-
-# Build results of Visual Studio projects
-[Dd]ebug/
-[Dd]ebugPublic/
-[Rr]elease/
-[Rr]eleases/
-x64/
-x86/
-bld/
-[Bb]in/
-[Oo]bj/
-[Ll]og/
-
-# Visual Studio Code
-.vscode/
-
-# ReSharper
-_ReSharper*/
-*.[Rr]e[Ss]harper
- assemblies/
-
-# InstallShield
-[IsBuildLog.txt]
+*.dll
+*.exe
+*.pdb
+*.so
+*.dylib
+*.jar
+*.war
+*.class
 
 # Dependencies
 packages/
-project.lock.json
-project.assets.json
-
-# Environment specific settings
-.env
-.env.local
-*.env.*
-
-# OS generated files
-.DS_Store
-Thumbs.db
-ehthumbs.db
-Icon?
-desktop.ini
+node_modules/
+vendor/
 
 # Logs
 *.log
 
+# Environment
+.env
+.env.local
+*.env.*
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test and coverage
+coverage/
+htmlcov/
+*.coverage
+.test*
+
 # Temporary files
 *.tmp
 *.temp
-*.bak
-*.cache
-*.cached
+*~
+```
 
-# Coverage
-coverage/
-*.coverage
-*.cover
-htmlcov/
+Wait, let me reconsider this. Looking at the changes again - only C# source files (.cs), a project file (.csproj), and a markdown file (.md) were added/modified. There are no build artifacts, dependency directories, or temporary files in the change list that would require ignoring.
 
-# Testing
-*.testresults
-*.trx
+```
 
-# Compressed archives
-*.zip
-*.tar
-*.gz
-*.tgz
-*.bz2
-*.xz
-*.7z
-*.rar
-*.zst
-*.lz4
-*.lzh
-*.cab
-*.arj
-*.rpm
-*.deb
-*.Z
-*.lz
-*.lzo
-*.tar.gz
-*.tar.bz2
-*.tar.xz
-*.tar.zst
 ```

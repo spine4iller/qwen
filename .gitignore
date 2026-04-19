@@ -1,0 +1,53 @@
+```
+# Build artifacts
+bin/
+obj/
+*.dll
+*.exe
+*.pdb
+*.so
+*.dylib
+*.jar
+*.war
+*.class
+
+# Dependencies
+packages/
+node_modules/
+vendor/
+
+# Logs
+*.log
+
+# Environment
+.env
+.env.local
+*.env.*
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test and coverage
+coverage/
+htmlcov/
+*.coverage
+.test*
+
+# Temporary files
+*.tmp
+*.temp
+*~
+```
+
+Wait, let me reconsider this. Looking at the changes again - only C# source files (.cs), a project file (.csproj), and a markdown file (.md) were added/modified. There are no build artifacts, dependency directories, or temporary files in the change list that would require ignoring.
+
+```
+
+```

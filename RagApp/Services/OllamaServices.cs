@@ -178,7 +178,7 @@ public static class OllamaServiceFactory
             Console.WriteLine("⚠ Ollama недоступен, используется эмуляция эмбеддингов");
             Console.WriteLine("  Для использования реальных эмбеддингов запустите Ollama: ollama serve");
             Console.WriteLine($"  Рекомендуемая модель: ollama pull {embeddingModel}");
-            return new SimpleEmbeddingService();
+            throw new InvalidOperationException("not connected");
         }
     }
 

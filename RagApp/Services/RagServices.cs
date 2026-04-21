@@ -8,43 +8,6 @@ public interface IEmbeddingService
     Task<float[]> GenerateEmbeddingAsync(string text);
 }
 
-public class SimpleEmbeddingService : IEmbeddingService
-{
-    // Простая эмуляция эмбеддингов для демонстрации
-    // В реальном проекте используйте Azure OpenAI или другую модель
-    public Task<float[]> GenerateEmbeddingAsync(string text)
-    {
-        // Генерируем псевдо-эмбеддинг на основе хеша текста
-        var hash = text.GetHashCode();
-        var embedding = new float[1536]; // Размерность как у text-embedding-ada-002
-
-        Random rng = new Random(hash);
-        for (int i = 0; i < embedding.Length; i++)
-        {
-            embedding[i] = (float)(rng.NextDouble() * 2 - 1);
-        }
-
-        // Нормализуем вектор
-        float magnitude = 0;
-        foreach (var value in embedding)
-        {
-            magnitude += value * value;
-        }
-
-        magnitude = (float)Math.Sqrt(magnitude);
-
-        if (magnitude > 0)
-        {
-            for (int i = 0; i < embedding.Length; i++)
-            {
-                embedding[i] /= magnitude;
-            }
-        }
-
-        return Task.FromResult(embedding);
-    }
-}
-
 public interface IVectorStore
 {
     Task AddDocumentAsync(DocumentChunk chunk);
